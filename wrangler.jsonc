@@ -17,11 +17,6 @@
 		"CALENDAR_NAME": "De Mirandabad rooster",
 		"TIME_ZONE": "Europe/Amsterdam"
 	},
-	"secrets": {
-		"required": [
-			"REFRESH_TOKEN"
-		]
-	},
 	"triggers": {
 		// 08:00, 12:00 and 18:00 Europe/Amsterdam in both CET and CEST.
 		// The handler ignores the three UTC invocations that do not match local time.

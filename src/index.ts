@@ -3,6 +3,8 @@ import { configFromEnv } from "./config";
 import { refreshCalendar } from "./refresh-calendar";
 import { shouldRefresh } from "./schedule";
 
+const REFRESH_PATH = "/refresh4340dcc7d92f815d73f53067a747400529c8b3a46782b319da0aab25e8272e95";
+
 function json(data: unknown, init: ResponseInit = {}): Response {
   const headers = new Headers(init.headers);
   headers.set("Content-Type", "application/json; charset=utf-8");
@@ -13,35 +15,7 @@ function errorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error);
 }
 
-async function tokensMatch(provided: string, expected: string): Promise<boolean> {
-  const encoder = new TextEncoder();
-  const [providedHash, expectedHash] = await Promise.all([
-    crypto.subtle.digest("SHA-256", encoder.encode(provided)),
-    crypto.subtle.digest("SHA-256", encoder.encode(expected)),
-  ]);
-  return crypto.subtle.timingSafeEqual(providedHash, expectedHash);
-}
-
-async function refreshResponse(request: Request, env: Env): Promise<Response> {
-  const authorization = request.headers.get("Authorization") ?? "";
-  const prefix = "Bearer ";
-  const token = authorization.startsWith(prefix)
-    ? authorization.slice(prefix.length)
-    : "";
-
-  if (!await tokensMatch(token, env.REFRESH_TOKEN)) {
-    return json(
-      { error: "Unauthorized" },
-      {
-        status: 401,
-        headers: {
-          "Cache-Control": "no-store",
-          "WWW-Authenticate": "Bearer",
-        },
-      },
-    );
-  }
-
+async function refreshResponse(env: Env): Promise<Response> {
   const metadata = await refreshCalendar(env, new Date());
   console.log(JSON.stringify({
     message: "calendar manually refreshed",
@@ -85,14 +59,14 @@ async function calendarResponse(request: Request, env: Env): Promise<Response> {
 
 async function handleFetch(request: Request, env: Env): Promise<Response> {
   const url = new URL(request.url);
-  if (url.pathname === "/refresh") {
+  if (url.pathname === REFRESH_PATH) {
     if (request.method !== "POST") {
       return json(
         { error: "Method not allowed" },
         { status: 405, headers: { Allow: "POST" } },
       );
     }
-    return refreshResponse(request, env);
+    return refreshResponse(env);
   }
 
   if (request.method !== "GET" && request.method !== "HEAD") {
@@ -120,7 +94,6 @@ async function handleFetch(request: Request, env: Env): Promise<Response> {
       name: config.calendar.calendarName,
       calendarUrl: new URL("/calendar.ics", url).toString(),
       healthUrl: new URL("/health", url).toString(),
-      refreshUrl: new URL("/refresh", url).toString(),
       days: config.calendar.calendarDays,
       refreshTimes: ["08:00", "12:00", "18:00"],
       timeZone: config.calendar.timeZone,
