@@ -1,0 +1,40 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "zwembad-rooster",
+	"main": "src/index.ts",
+	"compatibility_date": "2026-10-18",
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
+	"kv_namespaces": [
+		{
+			"binding": "CALENDAR_CACHE",
+			"id": "ba17c0f5b97440b3847f1876003e1418"
+		}
+	],
+	"vars": {
+		"API_BASE_URL": "https://zwembaden.api-amsterdam.nl/nl/api",
+		"POOL_SLUG": "de-mirandabad",
+		"CALENDAR_DAYS": "14",
+		"CALENDAR_NAME": "De Mirandabad rooster",
+		"TIME_ZONE": "Europe/Amsterdam"
+	},
+	"triggers": {
+		// 08:00, 12:00 and 18:00 Europe/Amsterdam in both CET and CEST.
+		// The handler ignores the three UTC invocations that do not match local time.
+		"crons": [
+			"0 6,7,10,11,16,17 * * *"
+		]
+	},
+	"observability": {
+		"enabled": true,
+		"logs": {
+			"enabled": true,
+			"head_sampling_rate": 1
+		},
+		"traces": {
+			"enabled": true,
+			"head_sampling_rate": 0.1
+		}
+	}
+}
