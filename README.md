@@ -56,6 +56,18 @@ https://<worker-name>.<account-subdomain>.workers.dev/calendar.ics
 The feed is read-only. Calendar clients decide how frequently they refresh
 subscriptions, so upstream changes may not appear on a phone immediately.
 
+## Code structure
+
+- `src/sources/zwembaden-api-amsterdam.ts` fetches and validates only the
+  Amsterdam swimming API, then returns generic calendar events.
+- `src/refresh-calendar.ts` coordinates sources, calendar generation, and KV
+  publication.
+- `src/calendar.ts` renders generic events as iCalendar.
+- `src/calendar-store.ts` reads and writes the generated calendar in KV.
+- `src/schedule.ts` owns refresh-time and date-range calculations.
+- `src/config.ts` validates Worker configuration.
+- `src/index.ts` contains the HTTP and scheduled Worker handlers.
+
 ## Reliability behavior
 
 - All 14 dated endpoints must succeed and validate before KV is overwritten.

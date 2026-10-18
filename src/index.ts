@@ -1,10 +1,7 @@
-import {
-  CALENDAR_KEY,
-  type CalendarMetadata,
-  configFromEnv,
-  refreshCalendar,
-  shouldRefresh,
-} from "./calendar";
+import { getCalendar } from "./calendar-store";
+import { configFromEnv } from "./config";
+import { refreshCalendar } from "./refresh-calendar";
+import { shouldRefresh } from "./schedule";
 
 function json(data: unknown, init: ResponseInit = {}): Response {
   const headers = new Headers(init.headers);
@@ -17,12 +14,12 @@ function errorMessage(error: unknown): string {
 }
 
 async function calendarResponse(request: Request, env: Env): Promise<Response> {
-  let cached = await env.CALENDAR_CACHE.getWithMetadata<CalendarMetadata>(CALENDAR_KEY, "text");
+  let cached = await getCalendar(env.CALENDAR_CACHE);
 
   if (cached.value === null) {
     console.log(JSON.stringify({ message: "calendar cache empty; initializing" }));
     await refreshCalendar(env, new Date());
-    cached = await env.CALENDAR_CACHE.getWithMetadata<CalendarMetadata>(CALENDAR_KEY, "text");
+    cached = await getCalendar(env.CALENDAR_CACHE);
   }
 
   if (cached.value === null || cached.metadata === null) {
@@ -60,7 +57,7 @@ async function handleFetch(request: Request, env: Env): Promise<Response> {
   }
 
   if (url.pathname === "/health") {
-    const cached = await env.CALENDAR_CACHE.getWithMetadata<CalendarMetadata>(CALENDAR_KEY, "text");
+    const cached = await getCalendar(env.CALENDAR_CACHE);
     return json({
       ready: cached.value !== null,
       metadata: cached.metadata,
@@ -70,12 +67,12 @@ async function handleFetch(request: Request, env: Env): Promise<Response> {
   if (url.pathname === "/") {
     const config = configFromEnv(env);
     return json({
-      name: config.calendarName,
+      name: config.calendar.calendarName,
       calendarUrl: new URL("/calendar.ics", url).toString(),
       healthUrl: new URL("/health", url).toString(),
-      days: config.calendarDays,
+      days: config.calendar.calendarDays,
       refreshTimes: ["08:00", "12:00", "18:00"],
-      timeZone: config.timeZone,
+      timeZone: config.calendar.timeZone,
     });
   }
 
@@ -100,11 +97,11 @@ export default {
   async scheduled(controller, env): Promise<void> {
     const scheduledAt = new Date(controller.scheduledTime);
     const config = configFromEnv(env);
-    if (!shouldRefresh(scheduledAt, config.timeZone)) {
+    if (!shouldRefresh(scheduledAt, config.calendar.timeZone)) {
       console.log(JSON.stringify({
         message: "scheduled invocation skipped outside configured local hours",
         scheduledAt: scheduledAt.toISOString(),
-        timeZone: config.timeZone,
+        timeZone: config.calendar.timeZone,
       }));
       return;
     }
