@@ -4,6 +4,7 @@ import { refreshCalendar } from "./refresh-calendar";
 import { shouldRefresh } from "./schedule";
 
 // this path below is not secret, but it is hard to guess and is used to prevent accidental refreshes from the public
+// curl -fsS -X POST \ https://zwembad-rooster.c-c24.workers.dev/refresh4340dcc7d92f815d73f53067a747400529c8b3a46782b319da0aab25e8272e95
 const REFRESH_PATH = "/refresh4340dcc7d92f815d73f53067a747400529c8b3a46782b319da0aab25e8272e95";
 
 function json(data: unknown, init: ResponseInit = {}): Response {
