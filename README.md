@@ -1,7 +1,7 @@
 # 🏊‍♂️ Zwembad rooster 🐓
 
 
-A Cloudflare Worker that publishes the next 14 days of the De Mirandabad swimming schedule (only banen zwemmen!) as a subscribable iCalendar feed: https://zwembad-rooster.c-c24.workers.dev/calendar.ics
+A Cloudflare Worker that publishes the next 14 days of the De Mirandabad swimming schedule (only banen zwemmen!) as a subscribable iCalendar feed: https://zwembad-rooster.c-c24.workers.dev
 
 
 The Worker fetches Amsterdam's dated schedule [endpoints](https://zwembaden.api-amsterdam.nl/nl/api/) at 08:00, 12:00, and
