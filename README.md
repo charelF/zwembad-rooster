@@ -37,6 +37,8 @@ To trigger a scheduled refresh locally:
 curl "http://localhost:8787/cdn-cgi/handler/scheduled?format=json&cron=0+6,7,10,11,16,17+*+*+*&time=<epoch-milliseconds>"
 ```
 
+There is no endpoint currently to to trigger a manual refresh of the deployed production instance.
+
 The handler checks the corresponding Amsterdam local time and only refreshes
 at 08:00, 12:00, or 18:00. The six UTC trigger hours cover both CET and CEST.
 
