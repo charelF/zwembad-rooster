@@ -14,7 +14,7 @@
 	],
 	"vars": {
 		"CALENDAR_DAYS": "14",
-		"CALENDAR_NAME": "De Mirandabad rooster",
+		"CALENDAR_NAME": "Zwembad rooster",
 		"TIME_ZONE": "Europe/Amsterdam"
 	},
 	"triggers": {
