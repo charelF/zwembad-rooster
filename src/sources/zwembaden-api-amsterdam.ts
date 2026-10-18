@@ -23,7 +23,7 @@ export type FetchLike = (
 
 const SOURCE_PAGE = "https://www.amsterdam.nl/demirandabad/rooster/";
 const LOCATION = "De Mirandabad, De Mirandalaan 9, Amsterdam";
-const EVENT_FILTER = "banen zwemmen";
+const EVENT_FILTER = "banen";
 
 export function getZwembadenApiAmsterdamSource(
   config: ZwembadenApiAmsterdamConfig,
