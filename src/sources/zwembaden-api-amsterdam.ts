@@ -23,6 +23,7 @@ export type FetchLike = (
 
 const SOURCE_PAGE = "https://www.amsterdam.nl/demirandabad/rooster/";
 const LOCATION = "De Mirandabad, De Mirandalaan 9, Amsterdam";
+const EVENT_FILTER = "banen zwemmen";
 
 export function getZwembadenApiAmsterdamSource(
   config: ZwembadenApiAmsterdamConfig,
@@ -115,13 +116,19 @@ function uidPart(value: string): string {
   return encodeURIComponent(value.trim().toLocaleLowerCase("nl-NL")).replaceAll("%", "_");
 }
 
+function matchesEventFilter(item: ScheduleItem): boolean {
+  return [item.activity, item.extra].some((value) =>
+    value.toLocaleLowerCase("nl-NL").includes(EVENT_FILTER)
+  );
+}
+
 function toEvents(
   date: string,
   schedule: DatedSchedule,
 ): CalendarEvent[] {
   const occurrences = new Map<string, number>();
 
-  return schedule.schedule.map((item) => {
+  return schedule.schedule.filter(matchesEventFilter).map((item) => {
     const occurrenceKey = `${item.activity}\u0000${item.extra}`;
     const occurrence = (occurrences.get(occurrenceKey) ?? 0) + 1;
     occurrences.set(occurrenceKey, occurrence);

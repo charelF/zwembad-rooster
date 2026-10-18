@@ -4,7 +4,7 @@
 A Cloudflare Worker that publishes the next 14 days of the De Mirandabad swimming schedule as a subscribable iCalendar feed: https://zwembad-rooster.c-c24.workers.dev/calendar.ics
 
 
-The Worker fetches Amsterdam's dated schedule endpoints at 08:00, 12:00, and
+The Worker fetches Amsterdam's dated schedule [endpoints](https://zwembaden.api-amsterdam.nl/nl/api/) at 08:00, 12:00, and
 18:00 in `Europe/Amsterdam`. It generates one complete `.ics` document and
 overwrites a single Workers KV value. No relational database is used.
 
@@ -79,6 +79,8 @@ subscriptions, so upstream changes may not appear on a phone immediately.
   events instead of creating duplicates.
 - Calendar timestamps use `TZID=Europe/Amsterdam` and include a `VTIMEZONE`.
 - Workers Logs and Traces are enabled in `wrangler.jsonc`.
+
+Amsterdam public pool API: https://zwembaden.api-amsterdam.nl/nl/api/
 
 The schedule backend is used by Amsterdam's official pool pages but is not a
 documented, versioned public API. Schema validation and structured logs make a
