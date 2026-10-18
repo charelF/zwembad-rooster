@@ -14,9 +14,46 @@ overwrites a single Workers KV value. No relational database is used.
 - `HEAD /calendar.ics` — feed metadata without the body
 - `GET /health` — last refresh time, covered date range, and event count
 - `GET /` — service information and the absolute subscription URL
+- `POST /refresh` — authenticated manual source fetch and KV replacement
 
 If the KV value is still empty immediately after the first deployment, the
 first request to `/calendar.ics` initializes it synchronously.
+
+## Refresh token setup
+
+`POST /refresh` requires a bearer token because every call fetches 14 upstream dates and replaces the production KV value.
+
+Generate a random token once and copy its output somewhere safe, such as a
+password manager:
+
+```sh
+openssl rand -hex 32
+```
+
+Store that value as an encrypted secret on the production Worker. Wrangler
+prompts for the value, so it does not appear in the command or repository:
+
+```sh
+pnpm exec wrangler secret put REFRESH_TOKEN
+```
+
+The secret name is declared in `wrangler.jsonc`, but its value is stored only
+by Cloudflare. Setting a secret creates and deploys a Worker version; run the
+normal deployment command afterwards to publish the current application code.
+
+For local development, copy the example file and put the same token—or a
+different local-only token—in `.dev.vars`:
+
+```sh
+cp .dev.vars.example .dev.vars
+```
+
+```ini
+REFRESH_TOKEN=your-token-here
+```
+
+`.dev.vars` is gitignored and is not uploaded to Cloudflare. If the production
+token is exposed, generate a new value and run `wrangler secret put` again.
 
 ## Development
 
@@ -34,15 +71,23 @@ is kept separate from production.
 To trigger a scheduled refresh locally:
 
 ```sh
-curl "http://localhost:8787/cdn-cgi/handler/scheduled?format=json&cron=0+6,7,10,11,16,17+*+*+*&time=<epoch-milliseconds>"
+curl "http://localhost:8787/cdn-cgi/local/scheduled?format=json&cron=0+6,7,10,11,16,17+*+*+*&time=<epoch-milliseconds>"
 ```
 
-There is no endpoint currently to to trigger a manual refresh of the deployed production instance.
+To test a manual refresh locally, use the value from `.dev.vars`:
+
+```sh
+curl -X POST \
+  -H "Authorization: Bearer <your-token>" \
+  http://localhost:8787/refresh
+```
 
 The handler checks the corresponding Amsterdam local time and only refreshes
 at 08:00, 12:00, or 18:00. The six UTC trigger hours cover both CET and CEST.
 
 ## Deployment
+
+After configuring `REFRESH_TOKEN` as described above, deploy the Worker:
 
 ```sh
 pnpm run deploy:worker
@@ -58,6 +103,18 @@ https://<worker-name>.<account-subdomain>.workers.dev/calendar.ics
 
 The feed is read-only. Calendar clients decide how frequently they refresh
 subscriptions, so upstream changes may not appear on a phone immediately.
+
+To refresh the deployed calendar immediately:
+
+```sh
+curl -X POST \
+  -H "Authorization: Bearer $ZWEMBAD_REFRESH_TOKEN" \
+  https://zwembad-rooster.c-c24.workers.dev/refresh
+```
+
+Set `ZWEMBAD_REFRESH_TOKEN` in your local shell or password manager to the same
+value stored as Cloudflare's `REFRESH_TOKEN` secret. A successful response
+includes the new fetch time, date range, and event count.
 
 ## Code structure
 
