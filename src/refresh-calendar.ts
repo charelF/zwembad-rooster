@@ -26,7 +26,6 @@ export async function refreshCalendar(
 
   const events = await fetchZwembadenApiAmsterdamEvents(
     dates,
-    config.zwembadenApiAmsterdam,
     fetcher,
   );
   const ics = buildCalendar(events, config.calendar, generatedAt);
@@ -36,7 +35,7 @@ export async function refreshCalendar(
     periodStart,
     periodEnd: dates.at(-1)!,
     eventCount: events.length,
-    source: getZwembadenApiAmsterdamSource(config.zwembadenApiAmsterdam),
+    source: getZwembadenApiAmsterdamSource(),
     version: `${formatVersionDate(generatedAt)}-${events.length}`,
   };
 

@@ -4,14 +4,8 @@ export interface CalendarConfig {
   timeZone: string;
 }
 
-export interface ZwembadenApiAmsterdamConfig {
-  apiBaseUrl: string;
-  poolSlug: string;
-}
-
 export interface AppConfig {
   calendar: CalendarConfig;
-  zwembadenApiAmsterdam: ZwembadenApiAmsterdamConfig;
 }
 
 export function configFromEnv(env: Env): AppConfig {
@@ -25,10 +19,6 @@ export function configFromEnv(env: Env): AppConfig {
       calendarDays,
       calendarName: env.CALENDAR_NAME,
       timeZone: env.TIME_ZONE,
-    },
-    zwembadenApiAmsterdam: {
-      apiBaseUrl: env.API_BASE_URL.replace(/\/$/, ""),
-      poolSlug: env.POOL_SLUG,
     },
   };
 }

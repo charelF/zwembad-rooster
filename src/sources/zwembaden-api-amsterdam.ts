@@ -1,5 +1,4 @@
 import type { CalendarEvent } from "../calendar";
-import type { ZwembadenApiAmsterdamConfig } from "../config";
 import { addDays } from "../schedule";
 
 interface ScheduleItem {
@@ -21,14 +20,16 @@ export type FetchLike = (
   init?: RequestInit,
 ) => Promise<Response>;
 
+const API_BASE_URL = "https://zwembaden.api-amsterdam.nl/nl/api";
+const DEFAULT_POOL_SLUG = "de-mirandabad";
 const SOURCE_PAGE = "https://www.amsterdam.nl/demirandabad/rooster/";
 const LOCATION = "De Mirandabad, De Mirandalaan 9, Amsterdam";
 const EVENT_FILTER = "banen";
 
 export function getZwembadenApiAmsterdamSource(
-  config: ZwembadenApiAmsterdamConfig,
+  poolSlug: string = DEFAULT_POOL_SLUG,
 ): string {
-  return `${config.apiBaseUrl}/${config.poolSlug}/date/{date}/`;
+  return `${API_BASE_URL}/${poolSlug}/date/{date}/`;
 }
 
 function assertString(value: unknown, path: string): asserts value is string {
@@ -96,10 +97,10 @@ function parseSchedule(value: unknown, date: string): DatedSchedule {
 
 async function fetchDatedSchedule(
   date: string,
-  config: ZwembadenApiAmsterdamConfig,
+  poolSlug: string,
   fetcher: FetchLike,
 ): Promise<DatedSchedule> {
-  const url = `${config.apiBaseUrl}/${config.poolSlug}/date/${date}/`;
+  const url = `${API_BASE_URL}/${poolSlug}/date/${date}/`;
   const response = await fetcher(url, {
     headers: { Accept: "application/json" },
   });
@@ -158,13 +159,13 @@ function toEvents(
 
 export async function fetchZwembadenApiAmsterdamEvents(
   dates: string[],
-  config: ZwembadenApiAmsterdamConfig,
   fetcher: FetchLike = fetch,
+  poolSlug: string = DEFAULT_POOL_SLUG,
 ): Promise<CalendarEvent[]> {
   const schedules = await Promise.all(
     dates.map(async (date) => ({
       date,
-      schedule: await fetchDatedSchedule(date, config, fetcher),
+      schedule: await fetchDatedSchedule(date, poolSlug, fetcher),
     })),
   );
 
