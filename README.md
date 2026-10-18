@@ -1,4 +1,4 @@
-# Zwembad rooster
+# 🏊‍♂️ Zwembad rooster 🐓
 
 
 A Cloudflare Worker that publishes the next 14 days of the De Mirandabad swimming schedule as a subscribable iCalendar feed: https://zwembad-rooster.c-c24.workers.dev/calendar.ics

@@ -6,7 +6,7 @@ interface __BaseEnv_Env {
 	API_BASE_URL: "https://zwembaden.api-amsterdam.nl/nl/api";
 	POOL_SLUG: "de-mirandabad";
 	CALENDAR_DAYS: "14";
-	CALENDAR_NAME: "De Mirandabad rooster";
+	CALENDAR_NAME: "Zwembad rooster";
 	TIME_ZONE: "Europe/Amsterdam";
 }
 declare namespace Cloudflare {
