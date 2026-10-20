@@ -1,10 +1,13 @@
 # 🏊‍♂️ Zwembad rooster 🐓
 
 
-A Cloudflare Worker that publishes the next 14 days of the De Mirandabad swimming schedule (only banen zwemmen!) as a subscribable iCalendar feed: https://zwembad-rooster.c-c24.workers.dev
+A Cloudflare Worker that publishes the next 14 days of the De Mirandabad and
+Sportfondsenbad Amsterdam-Oost swimming schedules (only banenzwemmen!) as a
+subscribable iCalendar feed: https://zwembad-rooster.c-c24.workers.dev
 
 
-The Worker fetches the Gemeente Amsterdam zwembad api schedule [endpoints](https://zwembaden.api-amsterdam.nl/nl/api/) at 08:00, 12:00, and
+The Worker fetches the Gemeente Amsterdam zwembad API schedule [endpoints](https://zwembaden.api-amsterdam.nl/nl/api/)
+and Sportfondsen's embedded timetable at 08:00, 12:00, and
 18:00 in `Europe/Amsterdam`. Each successful fetch generates one complete `.ics` document containing the next 14 days of events, and overwrites the previous entry, thereby automatically cleaning up past days.
 
 ## Endpoints
@@ -62,6 +65,8 @@ subscriptions, so upstream changes may not appear on a phone immediately.
 
 - `src/sources/zwembaden-api-amsterdam.ts` fetches and validates only the
   Amsterdam swimming API, then returns generic calendar events.
+- `src/sources/sportfondsen.ts` extracts and validates Sportfondsen's embedded
+  timetable, expands its weekly banenzwemmen slots, and returns calendar events.
 - `src/refresh-calendar.ts` coordinates sources, calendar generation, and KV
   publication.
 - `src/calendar.ts` renders generic events as iCalendar.
@@ -82,6 +87,9 @@ subscriptions, so upstream changes may not appear on a phone immediately.
 ## Sources
 
 Amsterdam public pool API: https://zwembaden.api-amsterdam.nl/nl/api/
+
+Sportfondsenbad Amsterdam-Oost timetable:
+https://amsterdamoost.sportfondsen.nl/tijden-en-tarieven/
 
 The schedule backend is used by Amsterdam's official pool pages but is not a
 documented, versioned public API. Schema validation and structured logs make a

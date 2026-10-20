@@ -10,6 +10,10 @@ import {
   type FetchLike,
   getZwembadenApiAmsterdamSource,
 } from "./sources/zwembaden-api-amsterdam";
+import {
+  fetchSportfondsenEvents,
+  getSportfondsenSource,
+} from "./sources/sportfondsen";
 
 function formatVersionDate(date: Date): string {
   return date.toISOString().replaceAll("-", "").replaceAll(":", "").replace(/\.\d{3}Z$/, "Z");
@@ -24,10 +28,10 @@ export async function refreshCalendar(
   const periodStart = getLocalDate(generatedAt, config.calendar.timeZone);
   const dates = listDates(periodStart, config.calendar.calendarDays);
 
-  const events = await fetchZwembadenApiAmsterdamEvents(
-    dates,
-    fetcher,
-  );
+  const events = (await Promise.all([
+    fetchZwembadenApiAmsterdamEvents(dates, fetcher),
+    fetchSportfondsenEvents(dates, fetcher),
+  ])).flat();
   const ics = buildCalendar(events, config.calendar, generatedAt);
 
   const metadata: CalendarMetadata = {
@@ -35,7 +39,7 @@ export async function refreshCalendar(
     periodStart,
     periodEnd: dates.at(-1)!,
     eventCount: events.length,
-    source: getZwembadenApiAmsterdamSource(),
+    source: [getZwembadenApiAmsterdamSource(), getSportfondsenSource()].join(", "),
     version: `${formatVersionDate(generatedAt)}-${events.length}`,
   };
 
